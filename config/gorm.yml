@@ -1,0 +1,25 @@
+Gorm: # 只针对 gorm 操作数据库有效
+  PostgreSql:
+    IsInitGlobalGormPostgreSql: 0  # 随项目启动为gorm db初始化一个全局 variable.GormDbMysql（完全等于*gorm.Db）,正确配置数据库，该值必须设置为: 1
+    SlowThreshold: 30
+    Write:
+      Host: "widealpha.top"
+      DataBase: "server"
+      Port: 5432
+      User: "go_server"
+      Pass: "k$bd442.Zp!$ytY"
+      SetMaxIdleConns: 10
+      SetMaxOpenConns: 128
+      SetConnMaxLifetime: 60
+    #ReConnectInterval: 1    # 保留项,重连数据库间隔秒数
+    #PingFailRetryTimes: 3   # 保留项,最大重连次数
+    IsOpenReadDb: 0            # 是否开启读写分离配置（1=开启、0=关闭），IsOpenReadDb=1,Read  部分参数有效，否则Read部分参数直接忽略
+    Read:
+      Host: "widealpha.top"
+      DataBase: "server"
+      Port: 5432
+      User: "go_server"
+      Pass: "k$bd442.Zp!$ytY"
+      SetMaxIdleConns: 10
+      SetMaxOpenConns: 128
+      SetConnMaxLifetime: 60

@@ -8,4 +8,7 @@ go get -u gorm.io/gorm
 
 # 安装 postgres 驱动
 go get -u gorm.io/driver/postgres
+
+# 安装 yml 配置文件读取包
+go get github.com/spf13/viper
 ```
