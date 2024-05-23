@@ -11,6 +11,7 @@
 
 ## 项目结构
 
+```
 simple-go-api/
 ├── main.go # 主程序入口
 ├── handler.go # 处理HTTP请求的处理器
@@ -19,6 +20,7 @@ simple-go-api/
 ├── config.yaml # 配置文件（如果需要）
 ├── go.mod # Go 模块文件
 └── go.sum # Go 依赖文件
+```
 
 
 ## 安装
