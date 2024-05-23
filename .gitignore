@@ -1,26 +1,37 @@
-# Binaries for programs and plugins
-*.exe
-*.exe~
-*.dll
-*.so
-*.dylib
-.idea
-.vscode
-.token
+# 编译输出目录
+/bin/
+/obj/
 
-build.sh
-logs
-go-web-mini
-go-ldap-admin
-go-ldap-admin.db
+# 依赖管理目录
+/pkg/
 
-# Test binary, built with `go test -c`
-*.test
-
-# Output of the go coverage tool, specifically when used with LiteIDE
+# 临时文件
+*.log
+*.tmp
 *.out
 
-# Dependency directories (remove the comment below to include it)
-# vendor/
-tmp
-docs/docker-compose/data
+
+# IDE 和编辑器相关的文件
+.vscode/
+.idea/
+*.swp
+*.swo
+*.bak
+*.backup
+*~
+
+# Go 依赖管理工具生成的文件
+vendor/
+
+# 如果使用 Go modules，忽略这些文件
+go.sum
+
+# 如果使用 macOS，忽略以下文件
+.DS_Store
+
+# 如果使用 Linux，忽略以下文件
+*~
+
+# 如果使用 Windows，忽略以下文件
+Thumbs.db
+desktop.ini
