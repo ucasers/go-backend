@@ -43,7 +43,12 @@ func (server *Server) Initialize(DbUser, DbPassword, DbPort, DbHost, DbName stri
 
 func (server *Server) Run(addr string) {
 	// 在退出时关闭数据库连接
-	defer server.DB.Close()
+	defer func(DB *gorm.DB) {
+		err := DB.Close()
+		if err != nil {
+
+		}
+	}(server.DB)
 
 	// 启动服务器
 	log.Fatal(http.ListenAndServe(addr, server.Router))
