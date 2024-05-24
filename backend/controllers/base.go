@@ -2,13 +2,13 @@ package controllers
 
 import (
 	"fmt"
+	"github.com/gin-gonic/gin"
 	"github.com/ucasers/go-backend/backend/middlewares"
+	"gorm.io/driver/postgres"
+	"gorm.io/gorm"
 	"log"
 	"net/http"
-
-	"github.com/gin-gonic/gin"
-	"github.com/jinzhu/gorm"
-	_ "github.com/jinzhu/gorm/dialects/postgres" //postgres database driver
+	"time"
 )
 
 type Server struct {
@@ -18,20 +18,36 @@ type Server struct {
 
 func (server *Server) Initialize(DbUser, DbPassword, DbPort, DbHost, DbName string) error {
 	// 创建连接字符串
-	connectionString := fmt.Sprintf("host=%s port=%s user=%s dbname=%s sslmode=disable password=%s", DbHost, DbPort, DbUser, DbName, DbPassword)
+	connectionString := fmt.Sprintf("host=%s port=%s user=%s dbname=%s sslmode=disable TimeZone=Asia/Shanghai password=%s", DbHost, DbPort, DbUser, DbName, DbPassword)
 
 	// 连接数据库
-	db, err := gorm.Open("postgres", connectionString)
+	db, err := gorm.Open(postgres.Open(connectionString), &gorm.Config{})
 	if err != nil {
 		log.Fatalf("Cannot connect to postgres database: %v", err)
 		return err
 	}
 
+	sqlDB, err := db.DB()
+
+	if err != nil {
+		log.Fatalf("Error create Sql Object: %v", err)
+		return err
+	}
+
 	// 检查连接是否正常
-	if err := db.DB().Ping(); err != nil {
+	if err := sqlDB.Ping(); err != nil {
 		log.Fatalf("Error pinging database: %v", err)
 		return err
 	}
+
+	// 设置空闲连接池中连接的最大数量
+	sqlDB.SetMaxIdleConns(10)
+
+	// 设置打开数据库连接的最大数量。
+	sqlDB.SetMaxOpenConns(100)
+
+	// SetConnMaxLifetime 设置了连接可复用的最大时间。
+	sqlDB.SetConnMaxLifetime(time.Hour)
 
 	// 设置 DB 字段
 	server.DB = db
@@ -46,7 +62,8 @@ func (server *Server) Initialize(DbUser, DbPassword, DbPort, DbHost, DbName stri
 func (server *Server) Run(addr string) {
 	// 在退出时关闭数据库连接
 	defer func(DB *gorm.DB) {
-		err := DB.Close()
+		sqlDB, _ := DB.DB()
+		err := sqlDB.Close()
 		if err != nil {
 
 		}

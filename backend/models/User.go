@@ -1,10 +1,9 @@
 package models
 
 import (
-	"errors"
 	"github.com/badoux/checkmail"
-	"github.com/jinzhu/gorm"
 	"github.com/ucasers/go-backend/backend/security"
+	"gorm.io/gorm"
 	"html"
 	"strings"
 	"time"
@@ -82,14 +81,6 @@ func (u *User) SaveUser(db *gorm.DB) (*User, error) {
 		return &User{}, err
 	}
 	return u, nil
-}
-
-func (u *User) FindUserByID(db *gorm.DB, uid uint32) (*User, error) {
-	err := db.Debug().Model(&User{}).Where("id = ?", uid).Take(&u).Error
-	if gorm.IsRecordNotFoundError(err) {
-		return &User{}, errors.New("User Not Found")
-	}
-	return u, err
 }
 
 func (u *User) UpdateAUser(db *gorm.DB, uid uint32) (*User, error) {
