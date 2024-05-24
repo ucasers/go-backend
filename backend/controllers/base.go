@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"fmt"
+	"github.com/ucasers/go-backend/backend/middlewares"
 	"log"
 	"net/http"
 
@@ -37,6 +38,7 @@ func (server *Server) Initialize(DbUser, DbPassword, DbPort, DbHost, DbName stri
 
 	// 初始化路由
 	server.Router = gin.Default()
+	server.Router.Use(middlewares.CORSMiddleware())
 
 	return nil
 }
