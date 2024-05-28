@@ -2,7 +2,6 @@ package models
 
 import (
 	"github.com/badoux/checkmail"
-	"github.com/ucasers/go-backend/backend/security"
 	"gorm.io/gorm"
 	"html"
 	"strings"
@@ -18,26 +17,15 @@ type User struct {
 	UpdatedAt time.Time `gorm:"default:CURRENT_TIMESTAMP" json:"updated_at"`
 }
 
-func (u *User) BeforeSave() error {
+func (u *User) BeforeSave(*gorm.DB) error {
 	u.Prepare()
-	hashedPassword, err := security.Hash(u.Password)
-	if err != nil {
-		return err
-	}
-	u.Password = string(hashedPassword)
+	u.UpdatedAt = time.Now()
 	return nil
 }
 
 func (u *User) Prepare() {
 	u.Username = html.EscapeString(strings.TrimSpace(u.Username))
 	u.Email = html.EscapeString(strings.TrimSpace(u.Email))
-	u.UpdatedAt = time.Now()
-}
-
-func (u *User) AfterFind() error {
-	// Don't return the user password
-	u.Password = ""
-	return nil
 }
 
 func (u *User) Validate(action string) map[string]string {
@@ -70,73 +58,4 @@ func (u *User) Validate(action string) map[string]string {
 		}
 	}
 	return errorMessages
-}
-
-func (u *User) SaveUser(db *gorm.DB) (*User, error) {
-	if err := u.BeforeSave(); err != nil {
-		return &User{}, err
-	}
-	err := db.Debug().Create(&u).Error
-	if err != nil {
-		return &User{}, err
-	}
-	return u, nil
-}
-
-func (u *User) UpdateAUser(db *gorm.DB, uid uint32) (*User, error) {
-	err := u.hashPasswordIfExists()
-	if err != nil {
-		return &User{}, err
-	}
-
-	updateData := map[string]interface{}{
-		"email":      u.Email,
-		"updated_at": time.Now(),
-	}
-
-	if u.Password != "" {
-		updateData["password"] = u.Password
-	}
-
-	err = db.Debug().Model(&User{}).Where("id = ?", uid).Updates(updateData).Error
-	if err != nil {
-		return &User{}, err
-	}
-
-	err = db.Debug().Model(&User{}).Where("id = ?", uid).Take(&u).Error
-	if err != nil {
-		return &User{}, err
-	}
-	return u, nil
-}
-
-func (u *User) DeleteAUser(db *gorm.DB, uid uint32) (int64, error) {
-	db = db.Debug().Model(&User{}).Where("id = ?", uid).Delete(&User{})
-	if db.Error != nil {
-		return 0, db.Error
-	}
-	return db.RowsAffected, nil
-}
-
-func (u *User) UpdatePassword(db *gorm.DB) error {
-	err := u.BeforeSave()
-	if err != nil {
-		return err
-	}
-	err = db.Debug().Model(&User{}).Where("email = ?", u.Email).Updates(map[string]interface{}{
-		"password":   u.Password,
-		"updated_at": time.Now(),
-	}).Error
-	if err != nil {
-		return err
-	}
-	return nil
-}
-
-// Helper function to hash password if it exists
-func (u *User) hashPasswordIfExists() error {
-	if u.Password != "" {
-		return u.BeforeSave()
-	}
-	return nil
 }
