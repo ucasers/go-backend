@@ -42,11 +42,3 @@ jobs:
           SSH_PASS: ${{ secrets.SSH_PASS }}
         run: |
           sshpass -p $SSH_PASS ssh -o StrictHostKeyChecking=no lmj@widealpha.top 'docker pull ucas789/icampus:latest && docker-compose up -d'
-
-
-  deploy:
-
-    runs-on: ubuntu-latest
-    needs: build
-
-    steps:
