@@ -2,7 +2,15 @@ package controllers
 
 import (
 	"github.com/gin-gonic/gin"
+	"net/http"
 )
+
+func (server *Server) HelloWorld(c *gin.Context) {
+	c.JSON(http.StatusOK, gin.H{
+		"status":   http.StatusOK,
+		"response": "hello world",
+	})
+}
 
 func (server *Server) GetUser(c *gin.Context) {
 
@@ -31,8 +39,8 @@ func (server *Server) GetUser(c *gin.Context) {
 	//	})
 	//	return
 	//}
-	//c.JSON(http.StatusOK, gin.H{
-	//	"status":   http.StatusOK,
-	//	"response": userGotten,
-	//})
+	c.JSON(http.StatusOK, gin.H{
+		"status":   http.StatusOK,
+		"response": "hello world",
+	})
 }
