@@ -32,3 +32,6 @@ vendor/
 # 如果使用 Windows，忽略以下文件
 Thumbs.db
 desktop.ini
+
+# 编辑生成的文件
+main
