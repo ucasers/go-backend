@@ -23,9 +23,6 @@
 # Go 依赖管理工具生成的文件
 vendor/
 
-# 如果使用 Go modules，忽略这些文件
-go.sum
-
 # 如果使用 macOS，忽略以下文件
 .DS_Store
 
