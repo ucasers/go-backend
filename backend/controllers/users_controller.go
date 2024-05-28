@@ -7,8 +7,9 @@ import (
 
 func (server *Server) HelloWorld(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
-		"status":   http.StatusOK,
-		"response": "hello world",
+		"status":  http.StatusOK,
+		"message": "success",
+		"data":    "hello world",
 	})
 }
 

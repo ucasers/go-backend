@@ -17,28 +17,28 @@ import (
 func (server *Server) Login(c *gin.Context) {
 	body, err := io.ReadAll(c.Request.Body)
 	if err != nil {
-		c.JSON(http.StatusUnprocessableEntity, gin.H{"status": http.StatusUnprocessableEntity, "error": "Unable to get request"})
+		c.JSON(http.StatusUnprocessableEntity, gin.H{"status": http.StatusUnprocessableEntity, "message": "Unable to get request"})
 		return
 	}
 
 	var user models.User
 	if err := json.Unmarshal(body, &user); err != nil {
-		c.JSON(http.StatusUnprocessableEntity, gin.H{"status": http.StatusUnprocessableEntity, "error": "Cannot unmarshal body"})
+		c.JSON(http.StatusUnprocessableEntity, gin.H{"status": http.StatusUnprocessableEntity, "message": "Cannot unmarshal body"})
 		return
 	}
 
 	if errors := user.Validate("login"); len(errors) > 0 {
-		c.JSON(http.StatusUnprocessableEntity, gin.H{"status": http.StatusUnprocessableEntity, "error": errors})
+		c.JSON(http.StatusUnprocessableEntity, gin.H{"status": http.StatusUnprocessableEntity, "message": errors})
 		return
 	}
 
 	userData, err := server.SignIn(user.Email, user.Password)
 	if err != nil {
-		c.JSON(http.StatusUnprocessableEntity, gin.H{"status": http.StatusUnprocessableEntity, "error": err})
+		c.JSON(http.StatusUnprocessableEntity, gin.H{"status": http.StatusUnprocessableEntity, "message": err})
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"status": http.StatusOK, "response": userData})
+	c.JSON(http.StatusOK, gin.H{"status": http.StatusOK, "data": userData})
 }
 
 // SignIn 处理用户身份验证
@@ -79,23 +79,23 @@ func (server *Server) SignIn(email, password string) (map[string]interface{}, er
 func (server *Server) Register(c *gin.Context) {
 	body, err := io.ReadAll(c.Request.Body)
 	if err != nil {
-		c.JSON(http.StatusUnprocessableEntity, gin.H{"status": http.StatusUnprocessableEntity, "error": "Unable to get request"})
+		c.JSON(http.StatusUnprocessableEntity, gin.H{"status": http.StatusUnprocessableEntity, "message": "Unable to get request"})
 		return
 	}
 
 	var user models.User
 	if err := json.Unmarshal(body, &user); err != nil {
-		c.JSON(http.StatusUnprocessableEntity, gin.H{"status": http.StatusUnprocessableEntity, "error": "Cannot unmarshal body"})
+		c.JSON(http.StatusUnprocessableEntity, gin.H{"status": http.StatusUnprocessableEntity, "message": "Cannot unmarshal body"})
 		return
 	}
 
 	err = query.User.
 		WithContext(server.DB.Statement.Context).Create(&user)
 	if err != nil {
-		c.JSON(http.StatusUnprocessableEntity, gin.H{"status": http.StatusUnprocessableEntity, "error": "Email already exist"})
+		c.JSON(http.StatusUnprocessableEntity, gin.H{"status": http.StatusUnprocessableEntity, "message": "Email already exist"})
 		return
 	}
-	c.JSON(http.StatusOK, gin.H{"status": http.StatusOK, "response": "successfully register"})
+	c.JSON(http.StatusOK, gin.H{"status": http.StatusOK, "message": "successfully register"})
 
 }
 
