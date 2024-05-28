@@ -43,8 +43,8 @@ jobs:
       - name: Build and push Docker image
         run: |
           docker-compose build
-          docker tag go-backend ${{ secrets.DOCKER_USERNAME }}/icampus:latest
-          docker push ${{ secrets.DOCKER_USERNAME }}/icampus:latest
+          docker tag go-backend ucas789/icampus:latest
+          docker push ucas789/icampus:latest
 
       - name: Deploy to server
         env:
