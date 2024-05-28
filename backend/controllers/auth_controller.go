@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -17,13 +18,13 @@ import (
 func (server *Server) Login(c *gin.Context) {
 	body, err := io.ReadAll(c.Request.Body)
 	if err != nil {
-		c.JSON(http.StatusUnprocessableEntity, gin.H{"status": http.StatusUnprocessableEntity, "message": "Unable to get request"})
+		c.JSON(http.StatusBadRequest, gin.H{"status": http.StatusBadRequest, "message": "Unable to get request"})
 		return
 	}
 
 	var user models.User
 	if err := json.Unmarshal(body, &user); err != nil {
-		c.JSON(http.StatusUnprocessableEntity, gin.H{"status": http.StatusUnprocessableEntity, "message": "Cannot unmarshal body"})
+		c.JSON(http.StatusBadRequest, gin.H{"status": http.StatusBadRequest, "message": "Cannot unmarshal body"})
 		return
 	}
 
@@ -34,7 +35,7 @@ func (server *Server) Login(c *gin.Context) {
 
 	userData, err := server.SignIn(user.Email, user.Password)
 	if err != nil {
-		c.JSON(http.StatusUnprocessableEntity, gin.H{"status": http.StatusUnprocessableEntity, "message": err})
+		c.JSON(http.StatusUnprocessableEntity, gin.H{"status": http.StatusUnprocessableEntity, "message": err.Error()})
 		return
 	}
 
@@ -43,9 +44,8 @@ func (server *Server) Login(c *gin.Context) {
 
 // SignIn 处理用户身份验证
 func (server *Server) SignIn(email, password string) (map[string]interface{}, error) {
-	// 使用生成的 User 模型
-	user, err := query.User.
-		WithContext(server.DB.Statement.Context).
+	user, err := query.Q.User.
+		WithContext(context.Background()).
 		Where(query.User.Email.Eq(email)).
 		First()
 	if err != nil {
@@ -89,8 +89,8 @@ func (server *Server) Register(c *gin.Context) {
 		return
 	}
 
-	err = query.User.
-		WithContext(server.DB.Statement.Context).Create(&user)
+	err = query.Q.User.
+		WithContext(context.Background()).Create(&user)
 	if err != nil {
 		c.JSON(http.StatusUnprocessableEntity, gin.H{"status": http.StatusUnprocessableEntity, "message": "Email already exist"})
 		return
