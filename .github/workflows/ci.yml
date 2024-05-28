@@ -10,9 +10,7 @@ on:
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
@@ -25,12 +23,6 @@ jobs:
       - name: Build the Docker image
         run: docker-compose build
 
-  deploy:
-
-    runs-on: ubuntu-latest
-    needs: build
-
-    steps:
       - name: Checkout code
         uses: actions/checkout@v2
 
@@ -42,12 +34,19 @@ jobs:
 
       - name: Build and push Docker image
         run: |
-          docker-compose build
-          docker tag go-backend ucas789/icampus:latest
+          docker tag go-backend_web ucas789/icampus:latest
           docker push ucas789/icampus:latest
 
       - name: Deploy to server
         env:
           SSH_PASS: ${{ secrets.SSH_PASS }}
         run: |
-          sshpass -p $SSH_PASS ssh -o StrictHostKeyChecking=no lmj@widealpha.top 'docker pull ${{ secrets.DOCKER_USERNAME }}go-backend:latest && docker-compose up -d'
+          sshpass -p $SSH_PASS ssh -o StrictHostKeyChecking=no lmj@widealpha.top 'docker pull ucas789/icampus:latest && docker-compose up -d'
+
+
+  deploy:
+
+    runs-on: ubuntu-latest
+    needs: build
+
+    steps:
