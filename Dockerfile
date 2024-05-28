@@ -16,13 +16,7 @@ COPY . .
 # Build the Go app
 RUN go build -o main .
 
-# Start a new stage from scratch
-FROM alpine:latest
-
-WORKDIR /root/
-
-# Copy the Pre-built binary file from the previous stage
-COPY --from=build /app/main .
-
 # Command to run the executable
 CMD ["./main"]
+
+
