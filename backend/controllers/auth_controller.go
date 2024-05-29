@@ -6,7 +6,6 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/ucasers/go-backend/backend/auth"
 	"github.com/ucasers/go-backend/backend/models"
-	"github.com/ucasers/go-backend/backend/utils"
 	"github.com/ucasers/go-backend/dao"
 	"gorm.io/gorm"
 	"io"
@@ -49,7 +48,6 @@ func (server *Server) Login(c *gin.Context) {
 	token, _ := auth.CreateToken(user.ID)
 	userData := map[string]interface{}{
 		"token": token,
-		"user":  utils.ResponseData(token, "User"),
 	}
 	c.JSON(http.StatusOK, gin.H{"status": http.StatusOK, "data": userData})
 	return
