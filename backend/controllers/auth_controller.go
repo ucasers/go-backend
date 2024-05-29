@@ -29,7 +29,7 @@ func (server *Server) Login(c *gin.Context) {
 	}
 
 	if errors := user.Validate("login"); len(errors) > 0 {
-		c.JSON(http.StatusUnprocessableEntity, gin.H{"status": http.StatusUnprocessableEntity, "message": errors})
+		c.JSON(http.StatusBadRequest, gin.H{"status": http.StatusBadRequest, "message": errors})
 		return
 	}
 
@@ -79,13 +79,13 @@ func (server *Server) SignIn(email, password string) (map[string]interface{}, er
 func (server *Server) Register(c *gin.Context) {
 	body, err := io.ReadAll(c.Request.Body)
 	if err != nil {
-		c.JSON(http.StatusUnprocessableEntity, gin.H{"status": http.StatusUnprocessableEntity, "message": "Unable to get request"})
+		c.JSON(http.StatusBadRequest, gin.H{"status": http.StatusBadRequest, "message": "Unable to get request"})
 		return
 	}
 
 	var user models.User
 	if err := json.Unmarshal(body, &user); err != nil {
-		c.JSON(http.StatusUnprocessableEntity, gin.H{"status": http.StatusUnprocessableEntity, "message": "Cannot unmarshal body"})
+		c.JSON(http.StatusBadRequest, gin.H{"status": http.StatusBadRequest, "message": "Cannot unmarshal body"})
 		return
 	}
 
@@ -102,4 +102,12 @@ func (server *Server) Register(c *gin.Context) {
 // logError 记录错误日志
 func (server *Server) logError(message string, err error) {
 	fmt.Printf("%s: %v\n", message, err)
+}
+
+func (server *Server) HelloWorld(c *gin.Context) {
+	c.JSON(http.StatusOK, gin.H{
+		"status":  http.StatusOK,
+		"message": "success",
+		"data":    "hello world",
+	})
 }

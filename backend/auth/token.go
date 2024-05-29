@@ -6,11 +6,10 @@ import (
 	"log"
 	"net/http"
 	"os"
-	"strconv"
 	"strings"
 	"time"
 
-	"github.com/dgrijalva/jwt-go"
+	"github.com/golang-jwt/jwt/v5"
 )
 
 // CreateToken creates a new JWT token with a given id
@@ -25,7 +24,7 @@ func CreateToken(id uint32) (string, error) {
 }
 
 // TokenValid validates the JWT token from the request
-func TokenValid(r *http.Request) error {
+func TokenValid(r *http.Request) (uint32, error) {
 	tokenString := ExtractToken(r)
 	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
@@ -34,13 +33,17 @@ func TokenValid(r *http.Request) error {
 		return []byte(os.Getenv("API_SECRET")), nil
 	})
 	if err != nil {
-		return err
+		return 0, err
 	}
 	if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
 		Pretty(claims)
-		return nil
+		id, ok := claims["id"].(int64) // jwt-go 将数字类型解析为 int64
+		if !ok {
+			return 0, fmt.Errorf("invalid token")
+		}
+		return uint32(id), nil
 	}
-	return fmt.Errorf("invalid token")
+	return 0, fmt.Errorf("invalid token")
 }
 
 // ExtractToken extracts the JWT token from the request
@@ -55,29 +58,6 @@ func ExtractToken(r *http.Request) string {
 		return strings.Split(bearerToken, " ")[1]
 	}
 	return ""
-}
-
-// ExtractTokenID extracts the user ID from the JWT token
-func ExtractTokenID(r *http.Request) (uint32, error) {
-	tokenString := ExtractToken(r)
-	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
-		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
-			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
-		}
-		return []byte(os.Getenv("API_SECRET")), nil
-	})
-	if err != nil {
-		return 0, err
-	}
-	claims, ok := token.Claims.(jwt.MapClaims)
-	if ok && token.Valid {
-		uid, err := strconv.ParseUint(fmt.Sprintf("%.0f", claims["id"]), 10, 32)
-		if err != nil {
-			return 0, err
-		}
-		return uint32(uid), nil
-	}
-	return 0, fmt.Errorf("invalid token")
 }
 
 // Pretty displays the claims nicely in the terminal

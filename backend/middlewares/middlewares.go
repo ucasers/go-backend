@@ -1,6 +1,8 @@
 package middlewares
 
 import (
+	"context"
+	"github.com/ucasers/go-backend/query"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -10,15 +12,28 @@ import (
 // TokenAuthMiddleware checks if the request contains a valid JWT token
 func TokenAuthMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		err := auth.TokenValid(c.Request)
+		userID, err := auth.TokenValid(c.Request)
 		if err != nil {
 			c.JSON(http.StatusUnauthorized, gin.H{
-				"status": http.StatusUnauthorized,
-				"error":  "Unauthorized",
+				"status":  http.StatusUnauthorized,
+				"message": "Unauthorized",
 			})
 			c.Abort()
 			return
 		}
+		user, err := query.Q.User.
+			WithContext(context.Background()).
+			Where(query.User.ID.Eq(userID)).
+			First()
+		if err != nil {
+			c.JSON(http.StatusUnauthorized, gin.H{
+				"status":  http.StatusUnauthorized,
+				"message": "User not found",
+			})
+			c.Abort()
+			return
+		}
+		c.Set("user", user)
 		c.Next()
 	}
 }
