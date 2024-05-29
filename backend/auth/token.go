@@ -1,9 +1,7 @@
 package auth
 
 import (
-	"encoding/json"
 	"fmt"
-	"log"
 	"net/http"
 	"os"
 	"strings"
@@ -36,9 +34,8 @@ func TokenValid(r *http.Request) (uint32, error) {
 		return 0, err
 	}
 	if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
-		Pretty(claims)
-		id, ok := claims["id"].(int64) // jwt-go 将数字类型解析为 int64
-		if !ok {
+		id, oks := claims["id"].(float64) // jwt-go 将数字类型解析为 int64
+		if !oks {
 			return 0, fmt.Errorf("invalid token")
 		}
 		return uint32(id), nil
@@ -48,24 +45,9 @@ func TokenValid(r *http.Request) (uint32, error) {
 
 // ExtractToken extracts the JWT token from the request
 func ExtractToken(r *http.Request) string {
-	keys := r.URL.Query()
-	token := keys.Get("token")
-	if token != "" {
-		return token
-	}
 	bearerToken := r.Header.Get("Authorization")
 	if len(strings.Split(bearerToken, " ")) == 2 {
 		return strings.Split(bearerToken, " ")[1]
 	}
 	return ""
-}
-
-// Pretty displays the claims nicely in the terminal
-func Pretty(data interface{}) {
-	b, err := json.MarshalIndent(data, "", "  ")
-	if err != nil {
-		log.Println(err)
-		return
-	}
-	fmt.Println(string(b))
 }

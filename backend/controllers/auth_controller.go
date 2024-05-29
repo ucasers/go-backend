@@ -35,7 +35,7 @@ func (server *Server) Login(c *gin.Context) {
 
 	userData, err := server.SignIn(user.Email, user.Password)
 	if err != nil {
-		c.JSON(http.StatusUnprocessableEntity, gin.H{"status": http.StatusUnprocessableEntity, "message": err.Error()})
+		c.JSON(http.StatusBadRequest, gin.H{"status": http.StatusBadRequest, "message": err.Error()})
 		return
 	}
 
@@ -69,7 +69,6 @@ func (server *Server) SignIn(email, password string) (map[string]interface{}, er
 
 	userData := map[string]interface{}{
 		"token":    token,
-		"id":       user.ID,
 		"email":    user.Email,
 		"username": user.Username,
 	}
@@ -90,9 +89,9 @@ func (server *Server) Register(c *gin.Context) {
 	}
 
 	err = query.Q.User.
-		WithContext(context.Background()).Create(&user)
+		WithContext(c).Create(&user)
 	if err != nil {
-		c.JSON(http.StatusUnprocessableEntity, gin.H{"status": http.StatusUnprocessableEntity, "message": "Email already exist"})
+		c.JSON(http.StatusBadRequest, gin.H{"status": http.StatusBadRequest, "message": "Email already exist"})
 		return
 	}
 	c.JSON(http.StatusOK, gin.H{"status": http.StatusOK, "message": "successfully register"})

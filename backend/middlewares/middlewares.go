@@ -1,7 +1,6 @@
 package middlewares
 
 import (
-	"context"
 	"github.com/ucasers/go-backend/query"
 	"net/http"
 
@@ -16,13 +15,13 @@ func TokenAuthMiddleware() gin.HandlerFunc {
 		if err != nil {
 			c.JSON(http.StatusUnauthorized, gin.H{
 				"status":  http.StatusUnauthorized,
-				"message": "Unauthorized",
+				"message": err.Error(),
 			})
 			c.Abort()
 			return
 		}
 		user, err := query.Q.User.
-			WithContext(context.Background()).
+			WithContext(c).
 			Where(query.User.ID.Eq(userID)).
 			First()
 		if err != nil {
