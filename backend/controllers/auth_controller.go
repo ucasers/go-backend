@@ -18,24 +18,24 @@ import (
 func (server *Server) Login(c *gin.Context) {
 	body, err := io.ReadAll(c.Request.Body)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"status": http.StatusBadRequest, "message": "Unable to get request"})
+		c.JSON(http.StatusBadRequest, gin.H{"status": http.StatusBadRequest, "error": "Unable to get request"})
 		return
 	}
 
 	var user models.User
 	if err := json.Unmarshal(body, &user); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"status": http.StatusBadRequest, "message": "Cannot unmarshal body"})
+		c.JSON(http.StatusBadRequest, gin.H{"status": http.StatusBadRequest, "error": "Cannot unmarshal body"})
 		return
 	}
 
 	if errors := user.Validate("login"); len(errors) > 0 {
-		c.JSON(http.StatusBadRequest, gin.H{"status": http.StatusBadRequest, "message": errors})
+		c.JSON(http.StatusBadRequest, gin.H{"status": http.StatusBadRequest, "error": errors})
 		return
 	}
 
 	userData, err := server.SignIn(user.Email, user.Password)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"status": http.StatusBadRequest, "message": err.Error()})
+		c.JSON(http.StatusBadRequest, gin.H{"status": http.StatusBadRequest, "error": err.Error()})
 		return
 	}
 
@@ -78,23 +78,23 @@ func (server *Server) SignIn(email, password string) (map[string]interface{}, er
 func (server *Server) Register(c *gin.Context) {
 	body, err := io.ReadAll(c.Request.Body)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"status": http.StatusBadRequest, "message": "Unable to get request"})
+		c.JSON(http.StatusBadRequest, gin.H{"status": http.StatusBadRequest, "error": "Unable to get request"})
 		return
 	}
 
 	var user models.User
 	if err := json.Unmarshal(body, &user); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"status": http.StatusBadRequest, "message": "Cannot unmarshal body"})
+		c.JSON(http.StatusBadRequest, gin.H{"status": http.StatusBadRequest, "error": "Cannot unmarshal body"})
 		return
 	}
 
 	err = query.Q.User.
 		WithContext(c).Create(&user)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"status": http.StatusBadRequest, "message": "Email already exist"})
+		c.JSON(http.StatusBadRequest, gin.H{"status": http.StatusBadRequest, "error": "Email already exist"})
 		return
 	}
-	c.JSON(http.StatusOK, gin.H{"status": http.StatusOK, "message": "successfully register"})
+	c.JSON(http.StatusOK, gin.H{"status": http.StatusOK})
 
 }
 
@@ -105,8 +105,7 @@ func (server *Server) logError(message string, err error) {
 
 func (server *Server) HelloWorld(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
-		"status":  http.StatusOK,
-		"message": "success",
-		"data":    "hello world",
+		"status": http.StatusOK,
+		"data":   "hello world",
 	})
 }
