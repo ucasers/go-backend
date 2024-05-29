@@ -10,7 +10,7 @@ func (server *Server) GetUser(c *gin.Context) {
 
 	user, exists := c.Get("user")
 	if !exists {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Could not retrieve user from context"})
+		c.JSON(http.StatusInternalServerError, gin.H{"message": "token验证失败"})
 		return
 	}
 

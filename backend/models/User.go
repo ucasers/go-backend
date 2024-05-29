@@ -1,7 +1,6 @@
 package models
 
 import (
-	"github.com/badoux/checkmail"
 	"gorm.io/gorm"
 	"html"
 	"strings"
@@ -26,36 +25,4 @@ func (u *User) BeforeSave(*gorm.DB) error {
 func (u *User) Prepare() {
 	u.Username = html.EscapeString(strings.TrimSpace(u.Username))
 	u.Email = html.EscapeString(strings.TrimSpace(u.Email))
-}
-
-func (u *User) Validate(action string) map[string]string {
-	errorMessages := make(map[string]string)
-	var err error
-
-	switch strings.ToLower(action) {
-	case "update", "login", "forgotpassword":
-		if u.Email == "" {
-			errorMessages["Required_email"] = "Required Email"
-		} else if err = checkmail.ValidateFormat(u.Email); err != nil {
-			errorMessages["Invalid_email"] = "Invalid Email"
-		}
-		if action != "forgotpassword" && u.Password == "" {
-			errorMessages["Required_password"] = "Required Password"
-		}
-	default:
-		if u.Username == "" {
-			errorMessages["Required_username"] = "Required Username"
-		}
-		if u.Password == "" {
-			errorMessages["Required_password"] = "Required Password"
-		} else if len(u.Password) < 6 {
-			errorMessages["Invalid_password"] = "Password should be at least 6 characters"
-		}
-		if u.Email == "" {
-			errorMessages["Required_email"] = "Required Email"
-		} else if err = checkmail.ValidateFormat(u.Email); err != nil {
-			errorMessages["Invalid_email"] = "Invalid Email"
-		}
-	}
-	return errorMessages
 }

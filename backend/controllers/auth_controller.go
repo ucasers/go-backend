@@ -1,10 +1,8 @@
 package controllers
 
 import (
-	"context"
 	"encoding/json"
 	"errors"
-	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/ucasers/go-backend/backend/auth"
 	"github.com/ucasers/go-backend/backend/models"
@@ -18,89 +16,67 @@ import (
 func (server *Server) Login(c *gin.Context) {
 	body, err := io.ReadAll(c.Request.Body)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"status": http.StatusBadRequest, "error": "Unable to get request"})
+		c.JSON(http.StatusBadRequest, gin.H{"status": http.StatusBadRequest, "message": "请求参数错误"})
 		return
 	}
 
-	var user models.User
-	if err := json.Unmarshal(body, &user); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"status": http.StatusBadRequest, "error": "Cannot unmarshal body"})
+	var responseUser models.User
+	if err := json.Unmarshal(body, &responseUser); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"status": http.StatusBadRequest, "message": "请求参数错误"})
 		return
 	}
 
-	if errors := user.Validate("login"); len(errors) > 0 {
-		c.JSON(http.StatusBadRequest, gin.H{"status": http.StatusBadRequest, "error": errors})
-		return
-	}
-
-	userData, err := server.SignIn(user.Email, user.Password)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"status": http.StatusBadRequest, "error": err.Error()})
-		return
-	}
-
-	c.JSON(http.StatusOK, gin.H{"status": http.StatusOK, "data": userData})
-}
-
-// SignIn 处理用户身份验证
-func (server *Server) SignIn(email, password string) (map[string]interface{}, error) {
 	user, err := query.Q.User.
-		WithContext(context.Background()).
-		Where(query.User.Email.Eq(email)).
+		WithContext(c).
+		Where(query.User.Email.Eq(responseUser.Email)).
 		First()
+
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, fmt.Errorf("invalid email or password")
+			c.JSON(http.StatusBadRequest, gin.H{"status": http.StatusBadRequest, "message": "邮箱或用户名不存在"})
+			return
 		}
-		server.logError("Error executing the query", err)
-		return nil, fmt.Errorf("internal server error")
+		c.JSON(http.StatusInternalServerError, gin.H{"status": http.StatusInternalServerError, "message": "服务器内部错误"})
+		return
 	}
 
-	if user.Password != password {
-		server.logError("Error verifying the password", err)
-		return nil, fmt.Errorf("invalid email or password")
+	if user.Password != responseUser.Password {
+		c.JSON(http.StatusBadRequest, gin.H{"status": http.StatusBadRequest, "message": "账号或密码错误"})
+		return
 	}
 
-	token, err := auth.CreateToken(user.ID)
-	if err != nil {
-		server.logError("Error creating the token", err)
-		return nil, fmt.Errorf("internal server error")
-	}
-
+	token, _ := auth.CreateToken(user.ID)
 	userData := map[string]interface{}{
 		"token":    token,
 		"email":    user.Email,
 		"username": user.Username,
 	}
-	return userData, nil
+	c.JSON(http.StatusOK, gin.H{"status": http.StatusOK, "data": userData})
+	return
 }
 
 func (server *Server) Register(c *gin.Context) {
 	body, err := io.ReadAll(c.Request.Body)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"status": http.StatusBadRequest, "error": "Unable to get request"})
+		c.JSON(http.StatusBadRequest, gin.H{"status": http.StatusBadRequest, "message": "请求参数错误"})
 		return
 	}
 
 	var user models.User
 	if err := json.Unmarshal(body, &user); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"status": http.StatusBadRequest, "error": "Cannot unmarshal body"})
+		c.JSON(http.StatusBadRequest, gin.H{"status": http.StatusBadRequest, "message": "请求参数错误"})
 		return
 	}
 
 	err = query.Q.User.
 		WithContext(c).Create(&user)
+
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"status": http.StatusBadRequest, "error": "Email already exist"})
+		c.JSON(http.StatusBadRequest, gin.H{"status": http.StatusBadRequest, "message": "邮箱已经存在"})
 		return
 	}
 	c.JSON(http.StatusOK, gin.H{"status": http.StatusOK})
 
-}
-
-// logError 记录错误日志
-func (server *Server) logError(message string, err error) {
-	fmt.Printf("%s: %v\n", message, err)
 }
 
 func (server *Server) HelloWorld(c *gin.Context) {
