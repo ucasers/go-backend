@@ -27,7 +27,7 @@ func (server *Server) Login(c *gin.Context) {
 	}
 
 	user, err := dao.Q.User.
-		WithContext(c).
+		WithContext(c.Request.Context()).
 		Where(dao.User.Email.Eq(responseUser.Email)).
 		First()
 
@@ -67,7 +67,7 @@ func (server *Server) Register(c *gin.Context) {
 	}
 
 	err = dao.Q.User.
-		WithContext(c).Create(&user)
+		WithContext(c.Request.Context()).Create(&user)
 
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"status": http.StatusBadRequest, "message": "邮箱已经存在"})

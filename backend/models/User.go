@@ -1,9 +1,6 @@
 package models
 
 import (
-	"gorm.io/gorm"
-	"html"
-	"strings"
 	"time"
 )
 
@@ -14,11 +11,4 @@ type User struct {
 	Password  string    `gorm:"size:100;not null;" json:"password"`
 	CreatedAt time.Time `gorm:"default:CURRENT_TIMESTAMP" json:"created_at"`
 	UpdatedAt time.Time `gorm:"default:CURRENT_TIMESTAMP" json:"updated_at"`
-}
-
-func (u *User) BeforeSave(*gorm.DB) error {
-	u.Username = html.EscapeString(strings.TrimSpace(u.Username))
-	u.Email = html.EscapeString(strings.TrimSpace(u.Email))
-	u.UpdatedAt = time.Now()
-	return nil
 }

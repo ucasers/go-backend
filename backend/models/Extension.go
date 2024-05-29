@@ -1,7 +1,6 @@
 package models
 
 import (
-	"gorm.io/gorm"
 	"time"
 )
 
@@ -15,9 +14,4 @@ type Extension struct {
 	UpdatedAt   time.Time `gorm:"default:CURRENT_TIMESTAMP" json:"updated_at"`
 	OwnerID     uint32    `gorm:"not null" json:"owner_id"`                          // Foreign key field
 	Owner       User      `gorm:"foreignKey:OwnerID;references:ID;onDelete:CASCADE"` // Relationship
-}
-
-func (e *Extension) BeforeSave(*gorm.DB) error {
-	e.UpdatedAt = time.Now()
-	return nil
 }
