@@ -47,7 +47,7 @@ func TokenValid(r *http.Request) (uint32, error) {
 func ExtractToken(r *http.Request) string {
 	bearerToken := r.Header.Get("Authorization")
 	if len(strings.Split(bearerToken, " ")) == 2 {
-		return strings.Split(bearerToken, " ")[1]
+		return strings.TrimSpace(strings.Split(bearerToken, " ")[1])
 	}
 	return ""
 }

@@ -17,12 +17,8 @@ type User struct {
 }
 
 func (u *User) BeforeSave(*gorm.DB) error {
-	u.Prepare()
-	u.UpdatedAt = time.Now()
-	return nil
-}
-
-func (u *User) Prepare() {
 	u.Username = html.EscapeString(strings.TrimSpace(u.Username))
 	u.Email = html.EscapeString(strings.TrimSpace(u.Email))
+	u.UpdatedAt = time.Now()
+	return nil
 }

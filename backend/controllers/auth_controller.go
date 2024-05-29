@@ -6,7 +6,8 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/ucasers/go-backend/backend/auth"
 	"github.com/ucasers/go-backend/backend/models"
-	"github.com/ucasers/go-backend/query"
+	"github.com/ucasers/go-backend/backend/utils"
+	"github.com/ucasers/go-backend/dao"
 	"gorm.io/gorm"
 	"io"
 	"net/http"
@@ -26,14 +27,14 @@ func (server *Server) Login(c *gin.Context) {
 		return
 	}
 
-	user, err := query.Q.User.
+	user, err := dao.Q.User.
 		WithContext(c).
-		Where(query.User.Email.Eq(responseUser.Email)).
+		Where(dao.User.Email.Eq(responseUser.Email)).
 		First()
 
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			c.JSON(http.StatusBadRequest, gin.H{"status": http.StatusBadRequest, "message": "邮箱或用户名不存在"})
+			c.JSON(http.StatusBadRequest, gin.H{"status": http.StatusBadRequest, "message": "邮箱不存在"})
 			return
 		}
 		c.JSON(http.StatusInternalServerError, gin.H{"status": http.StatusInternalServerError, "message": "服务器内部错误"})
@@ -41,15 +42,14 @@ func (server *Server) Login(c *gin.Context) {
 	}
 
 	if user.Password != responseUser.Password {
-		c.JSON(http.StatusBadRequest, gin.H{"status": http.StatusBadRequest, "message": "账号或密码错误"})
+		c.JSON(http.StatusBadRequest, gin.H{"status": http.StatusBadRequest, "message": "密码错误"})
 		return
 	}
 
 	token, _ := auth.CreateToken(user.ID)
 	userData := map[string]interface{}{
-		"token":    token,
-		"email":    user.Email,
-		"username": user.Username,
+		"token": token,
+		"user":  utils.ResponseData(token, "User"),
 	}
 	c.JSON(http.StatusOK, gin.H{"status": http.StatusOK, "data": userData})
 	return
@@ -68,7 +68,7 @@ func (server *Server) Register(c *gin.Context) {
 		return
 	}
 
-	err = query.Q.User.
+	err = dao.Q.User.
 		WithContext(c).Create(&user)
 
 	if err != nil {

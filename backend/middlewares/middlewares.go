@@ -1,7 +1,7 @@
 package middlewares
 
 import (
-	"github.com/ucasers/go-backend/query"
+	"github.com/ucasers/go-backend/dao"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -20,9 +20,9 @@ func TokenAuthMiddleware() gin.HandlerFunc {
 			c.Abort()
 			return
 		}
-		user, err := query.Q.User.
+		user, err := dao.Q.User.
 			WithContext(c).
-			Where(query.User.ID.Eq(userID)).
+			Where(dao.User.ID.Eq(userID)).
 			First()
 		if err != nil {
 			c.JSON(http.StatusUnauthorized, gin.H{

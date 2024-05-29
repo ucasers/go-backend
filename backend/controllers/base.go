@@ -5,8 +5,9 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/ucasers/go-backend/backend/middlewares"
 	"github.com/ucasers/go-backend/backend/models"
-	"github.com/ucasers/go-backend/query"
+	"github.com/ucasers/go-backend/dao"
 	"gorm.io/driver/postgres"
+	"gorm.io/gen"
 	"gorm.io/gorm"
 	"log"
 	"net/http"
@@ -52,21 +53,22 @@ func (server *Server) Initialize(DbUser, DbPassword, DbPort, DbHost, DbName stri
 	sqlDB.SetConnMaxLifetime(time.Hour)
 
 	// 生成文件
-	//g := gen.NewGenerator(gen.Config{
-	//	OutPath:       "./query",
-	//	Mode:          gen.WithDefaultQuery | gen.WithQueryInterface,
-	//	FieldNullable: true,
-	//})
-	//g.UseDB(db)
-	//g.ApplyBasic(models.User{})
-	//g.Execute()
-	query.SetDefault(db)
+	g := gen.NewGenerator(gen.Config{
+		OutPath:       "./dao",
+		Mode:          gen.WithDefaultQuery | gen.WithQueryInterface,
+		FieldNullable: true,
+	})
+	g.UseDB(db)
+	g.ApplyBasic(models.User{}, models.Extension{})
+	g.Execute()
 
-	err = db.AutoMigrate(&models.User{})
+	err = db.AutoMigrate(&models.User{}, models.Extension{})
 	if err != nil {
 		log.Fatalf("Migrate error: %v", err)
 		return err
 	}
+
+	dao.SetDefault(db)
 	// 设置 DB 字段
 	server.DB = db
 
