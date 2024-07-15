@@ -16,39 +16,44 @@ import (
 )
 
 var (
-	Q         = new(Query)
-	Extension *extension
-	User      *user
+	Q          = new(Query)
+	CipherPair *cipherPair
+	Extension  *extension
+	User       *user
 )
 
 func SetDefault(db *gorm.DB, opts ...gen.DOOption) {
 	*Q = *Use(db, opts...)
+	CipherPair = &Q.CipherPair
 	Extension = &Q.Extension
 	User = &Q.User
 }
 
 func Use(db *gorm.DB, opts ...gen.DOOption) *Query {
 	return &Query{
-		db:        db,
-		Extension: newExtension(db, opts...),
-		User:      newUser(db, opts...),
+		db:         db,
+		CipherPair: newCipherPair(db, opts...),
+		Extension:  newExtension(db, opts...),
+		User:       newUser(db, opts...),
 	}
 }
 
 type Query struct {
 	db *gorm.DB
 
-	Extension extension
-	User      user
+	CipherPair cipherPair
+	Extension  extension
+	User       user
 }
 
 func (q *Query) Available() bool { return q.db != nil }
 
 func (q *Query) clone(db *gorm.DB) *Query {
 	return &Query{
-		db:        db,
-		Extension: q.Extension.clone(db),
-		User:      q.User.clone(db),
+		db:         db,
+		CipherPair: q.CipherPair.clone(db),
+		Extension:  q.Extension.clone(db),
+		User:       q.User.clone(db),
 	}
 }
 
@@ -62,21 +67,24 @@ func (q *Query) WriteDB() *Query {
 
 func (q *Query) ReplaceDB(db *gorm.DB) *Query {
 	return &Query{
-		db:        db,
-		Extension: q.Extension.replaceDB(db),
-		User:      q.User.replaceDB(db),
+		db:         db,
+		CipherPair: q.CipherPair.replaceDB(db),
+		Extension:  q.Extension.replaceDB(db),
+		User:       q.User.replaceDB(db),
 	}
 }
 
 type queryCtx struct {
-	Extension IExtensionDo
-	User      IUserDo
+	CipherPair ICipherPairDo
+	Extension  IExtensionDo
+	User       IUserDo
 }
 
 func (q *Query) WithContext(ctx context.Context) *queryCtx {
 	return &queryCtx{
-		Extension: q.Extension.WithContext(ctx),
-		User:      q.User.WithContext(ctx),
+		CipherPair: q.CipherPair.WithContext(ctx),
+		Extension:  q.Extension.WithContext(ctx),
+		User:       q.User.WithContext(ctx),
 	}
 }
 

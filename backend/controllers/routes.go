@@ -21,4 +21,11 @@ func (s *Server) initializeRoutes() {
 		v3.POST("/upload", middlewares.TokenAuthMiddleware(), s.UploadExtension)
 		v3.POST("/modify", middlewares.TokenAuthMiddleware(), s.ModifyExtension)
 	}
+
+	v4 := s.Router.Group("/cipherpair")
+	{
+		v4.POST("/add", middlewares.TokenAuthMiddleware(), s.AddCipherPair)
+		v4.POST("/modify", middlewares.TokenAuthMiddleware(), s.ModifyCipherPair)
+		v4.POST("/delete", middlewares.TokenAuthMiddleware(), s.DeleteCipherPair)
+	}
 }

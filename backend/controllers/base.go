@@ -50,17 +50,17 @@ func (server *Server) Initialize(DbUser, DbPassword, DbPort, DbHost, DbName stri
 	// SetConnMaxLifetime 设置了连接可复用的最大时间。
 	sqlDB.SetConnMaxLifetime(time.Hour)
 
-	// 生成文件
+	//生成文件
 	//g := gen.NewGenerator(gen.Config{
 	//	OutPath:       "./dao",
 	//	Mode:          gen.WithDefaultQuery | gen.WithQueryInterface,
 	//	FieldNullable: true,
 	//})
 	//g.UseDB(db)
-	//g.ApplyBasic(models.User{}, models.Extension{})
+	//g.ApplyBasic(models.User{}, models.Extension{}, models.CipherPair{})
 	//g.Execute()
 	//
-	//err = db.AutoMigrate(&models.User{}, models.Extension{})
+	//err = db.AutoMigrate(&models.User{}, models.Extension{}, models.CipherPair{})
 	//if err != nil {
 	//	log.Fatalf("Migrate error: %v", err)
 	//	return err
