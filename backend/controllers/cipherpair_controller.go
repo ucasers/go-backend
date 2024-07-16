@@ -145,3 +145,24 @@ func (server *Server) DeleteCipherPair(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"status": http.StatusOK, "message": "密钥对已删除"})
 
 }
+
+// list add cipherpairs
+func (server *Server) ListCipherPairs(c *gin.Context) {
+	// 获取当前用户
+	user, _ := c.Get("user")
+	userModel, _ := user.(*models.User)
+
+	// 查询当前用户的密钥对
+	var cipherPairs []models.CipherPair
+	err := server.DB.
+		WithContext(c.Request.Context()).
+		Where("owner_id = ?", userModel.ID).
+		Find(&cipherPairs).Error
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"status": http.StatusInternalServerError, "message": "查询密钥对时出错"})
+		return
+	}
+
+	// 返回密钥对
+	c.JSON(http.StatusOK, gin.H{"status": http.StatusOK, "data": cipherPairs})
+}
