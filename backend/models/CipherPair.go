@@ -5,6 +5,6 @@ type CipherPair struct {
 	Name    string `gorm:"size:255;not null;" json:"name"`
 	Pwd     string `gorm:"size:100;not null;" json:"pwd"`
 	Key     string `gorm:"size:255;not null;" json:"key"`
-	OwnerID uint32 `gorm:"not null" json:"owner_id"`                          // Foreign key field
-	Owner   User   `gorm:"foreignKey:OwnerID;references:ID;onDelete:CASCADE"` // Relationship
+	OwnerID uint32 `gorm:"not null" json:"-"`                                          // Foreign key field, ignored in JSON
+	Owner   User   `gorm:"foreignKey:OwnerID;references:ID;onDelete:CASCADE" json:"-"` // Relationship, ignored in JSON
 }
