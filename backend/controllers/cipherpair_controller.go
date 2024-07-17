@@ -9,7 +9,6 @@ import (
 	"gorm.io/gorm"
 	"io"
 	"net/http"
-	"strconv"
 )
 
 func (server *Server) AddCipherPair(c *gin.Context) {
@@ -100,28 +99,23 @@ func (server *Server) DeleteCipherPair(c *gin.Context) {
 	user, _ := c.Get("user")
 	userModel, _ := user.(*models.User)
 
-	data, err := c.GetRawData()
+	// 读取请求体
+	body, err := io.ReadAll(c.Request.Body)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		c.JSON(http.StatusBadRequest, gin.H{"status": http.StatusBadRequest, "message": "请求参数错误"})
 		return
 	}
 
-	// 将数据转换为字符串
-	idStr := string(data)
-
-	// 尝试将字符串转换为 uint32
-	id, err := strconv.ParseUint(idStr, 10, 32)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid ID format"})
+	// 解析请求体中的新数据
+	var newCipherPair models.CipherPair
+	if err := json.Unmarshal(body, &newCipherPair); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"status": http.StatusBadRequest, "message": "请求参数错误"})
 		return
 	}
-
-	// 将 id 转换为 uint32 类型
-	uint32ID := uint32(id)
 
 	cipherPair, err := dao.Q.CipherPair.
 		WithContext(c.Request.Context()).
-		Where(dao.CipherPair.ID.Eq(uint32ID)).First()
+		Where(dao.CipherPair.ID.Eq(newCipherPair.ID)).First()
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			c.JSON(http.StatusNotFound, gin.H{"status": http.StatusNotFound, "message": "找不到密钥对"})
