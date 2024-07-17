@@ -12,6 +12,6 @@ type Extension struct {
 	Tag         string    `gorm:"size:255;not null;" json:"tag"`
 	CreatedAt   time.Time `gorm:"default:CURRENT_TIMESTAMP" json:"created_at"`
 	UpdatedAt   time.Time `gorm:"default:CURRENT_TIMESTAMP" json:"updated_at"`
-	OwnerID     uint32    `gorm:"not null" json:"owner_id"`                          // Foreign key field
-	Owner       User      `gorm:"foreignKey:OwnerID;references:ID;onDelete:CASCADE"` // Relationship
+	OwnerID     uint32    `gorm:"not null" json:"-"`                                          // Foreign key field, ignored in JSON
+	Owner       User      `gorm:"foreignKey:OwnerID;references:ID;onDelete:CASCADE" json:"-"` // Relationship, ignored in JSON
 }
