@@ -22,7 +22,7 @@ func (s *Server) initializeRoutes() {
 		v3.POST("/modify", middlewares.TokenAuthMiddleware(), s.ModifyExtension)
 		v3.POST("/delete", middlewares.TokenAuthMiddleware(), s.DeleteExtension)
 		v3.GET("/list", middlewares.TokenAuthMiddleware(), s.ListExtensions)
-		v3.POST("/get-by-title", s.GetExtensionByTitle)
+		v3.GET("/get-by-title", s.GetExtensionByTitle)
 	}
 
 	v4 := s.Router.Group("/cipherpair")

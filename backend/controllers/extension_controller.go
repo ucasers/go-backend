@@ -165,25 +165,14 @@ func (server *Server) ListExtensions(c *gin.Context) {
 // GetExtensionByTitle get extension detail by extension title
 func (server *Server) GetExtensionByTitle(c *gin.Context) {
 	// 读取请求体
-	body, err := io.ReadAll(c.Request.Body)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"status": http.StatusBadRequest, "message": "请求参数错误"})
-		return
-	}
-
-	// 解析请求体中的新数据
-	var newExtensionData models.Extension
-	if err := json.Unmarshal(body, &newExtensionData); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"status": http.StatusBadRequest, "message": "请求参数错误"})
-		return
-	}
+	title := c.Param("title")
 
 	// 查询当前用户的扩展
 	var extension models.Extension
 
 	if err := server.DB.
 		WithContext(c.Request.Context()).
-		Where("title = ?", newExtensionData.Title).
+		Where("title = ?", title).
 		First(&extension).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"status": http.StatusInternalServerError, "message": "查询扩展时出错"})
 		return
