@@ -22,6 +22,7 @@ func (s *Server) initializeRoutes() {
 		v3.POST("/modify", middlewares.TokenAuthMiddleware(), s.ModifyExtension)
 		v3.POST("/delete", middlewares.TokenAuthMiddleware(), s.DeleteExtension)
 		v3.GET("/list", middlewares.TokenAuthMiddleware(), s.ListExtensions)
+		v3.POST("/get-by-title", s.GetExtensionByTitle)
 	}
 
 	v4 := s.Router.Group("/cipherpair")
@@ -30,6 +31,5 @@ func (s *Server) initializeRoutes() {
 		v4.POST("/modify", middlewares.TokenAuthMiddleware(), s.ModifyCipherPair)
 		v4.POST("/delete", middlewares.TokenAuthMiddleware(), s.DeleteCipherPair)
 		v4.GET("/list", middlewares.TokenAuthMiddleware(), s.ListCipherPairs)
-		v4.POST("/get-by-title", s.GetExtensionByTitle)
 	}
 }
