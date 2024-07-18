@@ -30,5 +30,6 @@ func (s *Server) initializeRoutes() {
 		v4.POST("/modify", middlewares.TokenAuthMiddleware(), s.ModifyCipherPair)
 		v4.POST("/delete", middlewares.TokenAuthMiddleware(), s.DeleteCipherPair)
 		v4.GET("/list", middlewares.TokenAuthMiddleware(), s.ListCipherPairs)
+		v4.POST("/get-by-title", s.GetExtensionByTitle)
 	}
 }
