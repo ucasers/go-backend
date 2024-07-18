@@ -155,9 +155,10 @@ func (server *Server) ListExtensions(c *gin.Context) {
 		WithContext(c.Request.Context()).
 		Where("owner_id = ?", userModel.ID).
 		Find(&extensions).Error
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"status": http.StatusInternalServerError, "message": "查询拓展时出错"})
-		return
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		c.JSON(http.StatusNotFound, gin.H{"status": http.StatusNotFound, "message": "找不到扩展"})
+	} else {
+		c.JSON(http.StatusInternalServerError, gin.H{"status": http.StatusInternalServerError, "message": "查询扩展时出错"})
 	}
 	c.JSON(http.StatusOK, gin.H{"status": http.StatusOK, "data": extensions})
 }
@@ -165,16 +166,17 @@ func (server *Server) ListExtensions(c *gin.Context) {
 // GetExtensionByTitle get extension detail by extension title
 func (server *Server) GetExtensionByTitle(c *gin.Context) {
 	// 读取请求体
-	title := c.Param("title")
+	title := c.Query("title")
 
-	// 查询当前用户的扩展
-	var extension models.Extension
-
-	if err := server.DB.
+	extension, err := dao.Q.Extension.
 		WithContext(c.Request.Context()).
-		Where("title = ?", title).
-		First(&extension).Error; err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"status": http.StatusInternalServerError, "message": "查询扩展时出错"})
+		Where(dao.Extension.Title.Eq(title)).First()
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			c.JSON(http.StatusNotFound, gin.H{"status": http.StatusNotFound, "message": "找不到扩展"})
+		} else {
+			c.JSON(http.StatusInternalServerError, gin.H{"status": http.StatusInternalServerError, "message": "查询扩展时出错"})
+		}
 		return
 	}
 
