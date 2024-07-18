@@ -155,10 +155,13 @@ func (server *Server) ListExtensions(c *gin.Context) {
 		WithContext(c.Request.Context()).
 		Where("owner_id = ?", userModel.ID).
 		Find(&extensions).Error
-	if errors.Is(err, gorm.ErrRecordNotFound) {
-		c.JSON(http.StatusNotFound, gin.H{"status": http.StatusNotFound, "message": "找不到扩展"})
-	} else {
-		c.JSON(http.StatusInternalServerError, gin.H{"status": http.StatusInternalServerError, "message": "查询扩展时出错"})
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			c.JSON(http.StatusNotFound, gin.H{"status": http.StatusNotFound, "message": "找不到扩展"})
+		} else {
+			c.JSON(http.StatusInternalServerError, gin.H{"status": http.StatusInternalServerError, "message": "查询扩展时出错"})
+		}
+		return
 	}
 	c.JSON(http.StatusOK, gin.H{"status": http.StatusOK, "data": extensions})
 }
